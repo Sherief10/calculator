@@ -12,15 +12,48 @@ class Calculator{
     }
 
     delete(){ // clears a single number
+        this.currentOperand = this.currentOperand.toString().slice(0, -1);
+    }
+    
+    operate(){
+        let computation;
+        const prev = parseFloat(this.previousOperand);
+        const current = parseFloat(this.currentOperand);
+        if(this.operation == '+'){
+            computation = prev + current;
+        }else if(this.operation == '-'){
+            computation = prev - current;
+        }else if(this.operation == '*'){
+            computation = prev * current;
+        }else if(this.operation == '/'){
+            computation = prev / current;
+        }
+        this.currentOperand = computation;
+        this.operation = undefined;
+        this.previousOperand = '';
+    }
 
+    chooseOperation(operation){
+        if(this.currentOperand == '') return
+        if(this.previousOperand !== ''){
+            this.operate();
+        }
+        this.operation = operation;
+        this.previousOperand = this.currentOperand;
+        this.currentOperand = '';
     }
 
     populateDisplay(number){ // appends numbers
-        this.currentOperand = number;
+        if(number == '.' && this.currentOperand.includes('.')) return;
+        this.currentOperand = this.currentOperand.toString() + number.toString();
     }
 
     updateDisplay(){
-        this.currentOperandTextElement = this.currentOperand;
+        this.currentOperandTextElement.innerText = this.currentOperand;
+        if(this.operation != null){ //fix later
+            this.previousOperandTextElement.innerText = this.previousOperand + " " + this.operation;
+            //this.previousOperandTextElement.innerText = `${this.previousOperand} ${this.operation}`;
+        }
     }
 }
 
@@ -34,6 +67,7 @@ const currentOperandTextElement = document.querySelector('[data-current-operand]
 
 const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement);
 
+
 numberButtons.forEach(button => {
     button.addEventListener('click', () => {
         calculator.populateDisplay(button.innerText);
@@ -41,33 +75,24 @@ numberButtons.forEach(button => {
     })
 })
 
+operationButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        calculator.chooseOperation(button.innerText);
+        calculator.updateDisplay();
+    })
+})
 
-/*
-function add(num1, num2){
-    return num1 + num2;
-}
+equalsButton.addEventListener('click', button => {
+    calculator.operate();
+    calculator.updateDisplay();
+})
 
-function subtract(num1, num2){
-    return num1 - num2;
-}
+clearButton.addEventListener('click', button => {
+    calculator.clear();
+    calculator.updateDisplay();
+})
 
-function multiply(num1, num2){
-    return num1 * num2;
-}
-
-function divide(num1, num2){
-    return num1 / num2;
-}
-
-function operate(operator, num1, num2){
-    if(operator == '+'){
-        return add(num1, num2);
-    }else if(operator == '-'){
-        return subtract(num1, num2);
-    }else if(operator == '*'){
-        return multiply(num1, num2);
-    }else if(operator == '/'){
-        return divide(num1, num2);
-    }
-}
-*/
+deleteButton.addEventListener('click', button => {
+    calculator.delete();
+    calculator.updateDisplay();
+})
